@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wordle — Mini Oyun</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>WORDLE</h1>
+      <p class="subtitle">5 harfli kelimeyi 6 denemede bul!</p>
+    </header>
+
+    <div id="message" class="message" aria-live="polite"></div>
+
+    <div id="board" class="board" role="grid" aria-label="Tahmin tahtası"></div>
+
+    <div id="keyboard" class="keyboard" role="group" aria-label="Sanal klavye"></div>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-content">
+        <h2 id="modal-title"></h2>
+        <p id="modal-text"></p>
+        <button id="play-again" class="btn">Tekrar Oyna</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="words.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
