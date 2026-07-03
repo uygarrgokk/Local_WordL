@@ -14,6 +14,7 @@ const modalEl = document.getElementById("modal");
 const modalTitleEl = document.getElementById("modal-title");
 const modalTextEl = document.getElementById("modal-text");
 const playAgainBtn = document.getElementById("play-again");
+const appEl = document.querySelector(".app");
 
 let secretWord = "";
 let currentRow = 0;
@@ -69,6 +70,7 @@ function buildKeyboard() {
 
     row.forEach(key => {
       const btn = document.createElement("button");
+      btn.type = "button";
       btn.className = "key";
       btn.dataset.key = key;
       btn.textContent = key === "ENTER" ? "GİR" : key === "⌫" ? "SİL" : key;
@@ -77,7 +79,12 @@ function buildKeyboard() {
         btn.classList.add("wide");
       }
 
-      btn.addEventListener("click", () => handleKey(key));
+      btn.addEventListener("mousedown", e => e.preventDefault());
+      btn.addEventListener("click", e => {
+        e.preventDefault();
+        handleKey(key);
+        focusGame();
+      });
       rowEl.appendChild(btn);
     });
 
@@ -258,8 +265,21 @@ function initGame() {
 
 }
 
-document.addEventListener("keydown", e => {
-  if (e.ctrlKey || e.metaKey || e.altKey) return;
+function focusGame() {
+  appEl.focus({ preventScroll: true });
+}
+
+function isGameKey(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return false;
+  if (e.key === "Enter" || e.key === "Backspace") return true;
+  return e.key.length === 1;
+}
+
+function onKeyDown(e) {
+  if (!isGameKey(e)) return;
+
+  e.preventDefault();
+  e.stopImmediatePropagation();
 
   if (e.key === "Enter") {
     handleKey("ENTER");
@@ -268,8 +288,29 @@ document.addEventListener("keydown", e => {
   } else if (e.key.length === 1) {
     handleKey(e.key);
   }
+}
+
+function blockBrowserBack() {
+  history.pushState({ game: true }, "", location.href);
+  window.addEventListener("popstate", () => {
+    history.pushState({ game: true }, "", location.href);
+  });
+}
+
+document.addEventListener("keydown", onKeyDown, true);
+document.addEventListener("keyup", e => {
+  if (e.key === "Backspace") {
+    e.preventDefault();
+  }
+}, true);
+
+appEl.addEventListener("click", focusGame);
+playAgainBtn.addEventListener("click", () => {
+  initGame();
+  focusGame();
 });
 
-playAgainBtn.addEventListener("click", initGame);
+blockBrowserBack();
+focusGame();
 
 initGame();
