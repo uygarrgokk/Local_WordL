@@ -10,9 +10,8 @@ const TURKISH_LAYOUT = [
 const boardEl = document.getElementById("board");
 const keyboardEl = document.getElementById("keyboard");
 const messageEl = document.getElementById("message");
-const modalEl = document.getElementById("modal");
-const modalTitleEl = document.getElementById("modal-title");
-const modalTextEl = document.getElementById("modal-text");
+const endPanelEl = document.getElementById("end-panel");
+const endTextEl = document.getElementById("end-text");
 const playAgainBtn = document.getElementById("play-again");
 const appEl = document.querySelector(".app");
 
@@ -28,13 +27,11 @@ function normalize(str) {
 }
 
 function pickSecretWord() {
-  const index = Math.floor(Math.random() * VALID_WORDS.length);
-  return VALID_WORDS[index];
+  return VALID_WORDS[Math.floor(Math.random() * VALID_WORDS.length)];
 }
 
 function isValidWord(word) {
-  const upper = normalize(word);
-  return VALID_WORDS.includes(upper);
+  return VALID_WORDS.includes(normalize(word));
 }
 
 function buildBoard() {
@@ -44,14 +41,11 @@ function buildBoard() {
   for (let r = 0; r < MAX_GUESSES; r++) {
     const rowEl = document.createElement("div");
     rowEl.className = "row";
-    rowEl.dataset.row = r;
     const rowTiles = [];
 
     for (let c = 0; c < WORD_LENGTH; c++) {
       const tile = document.createElement("div");
       tile.className = "tile";
-      tile.dataset.row = r;
-      tile.dataset.col = c;
       rowEl.appendChild(tile);
       rowTiles.push(tile);
     }
@@ -75,16 +69,17 @@ function buildKeyboard() {
       btn.dataset.key = key;
       btn.textContent = key === "ENTER" ? "GİR" : key === "⌫" ? "SİL" : key;
 
+      // GİR ve SİL tuşları daha geniş olsun
       if (key === "ENTER" || key === "⌫") {
         btn.classList.add("wide");
       }
 
       btn.addEventListener("mousedown", e => e.preventDefault());
-      btn.addEventListener("click", e => {
-        e.preventDefault();
+      btn.addEventListener("click", () => {
         handleKey(key);
         focusGame();
       });
+
       rowEl.appendChild(btn);
     });
 
@@ -95,7 +90,6 @@ function buildKeyboard() {
 function showMessage(text, isError = false, duration = 2000) {
   messageEl.textContent = text;
   messageEl.className = "message show" + (isError ? " error" : "");
-
   clearTimeout(showMessage._timer);
   showMessage._timer = setTimeout(() => {
     messageEl.className = "message";
@@ -107,7 +101,6 @@ function evaluateGuess(guess) {
   const result = Array(WORD_LENGTH).fill("absent");
   const remaining = [...secret];
 
-  // Önce doğru konumdaki harfleri yeşil yap
   for (let i = 0; i < WORD_LENGTH; i++) {
     if (guess[i] === secret[i]) {
       result[i] = "correct";
@@ -115,10 +108,8 @@ function evaluateGuess(guess) {
     }
   }
 
-  // Sonra yanlış konumdaki harfleri sarı yap
   for (let i = 0; i < WORD_LENGTH; i++) {
     if (result[i] === "correct") continue;
-
     const idx = remaining.indexOf(guess[i]);
     if (idx !== -1) {
       result[i] = "present";
@@ -139,7 +130,6 @@ function updateKeyStates(guess, result) {
     if (current === "present" && status === "absent") continue;
 
     keyStates[letter] = status;
-
     const keyBtn = keyboardEl.querySelector(`[data-key="${letter}"]`);
     if (keyBtn) {
       keyBtn.classList.remove("correct", "present", "absent");
@@ -150,17 +140,11 @@ function updateKeyStates(guess, result) {
 
 function revealRow(rowIndex, guess, result) {
   return new Promise(resolve => {
-    const rowTiles = tiles[rowIndex];
-
-    rowTiles.forEach((tile, i) => {
+    tiles[rowIndex].forEach((tile, i) => {
       setTimeout(() => {
-        tile.classList.add("flip");
-        tile.classList.add(result[i]);
+        tile.classList.add("flip", result[i]);
         tile.textContent = guess[i];
-
-        if (i === WORD_LENGTH - 1) {
-          setTimeout(resolve, 300);
-        }
+        if (i === WORD_LENGTH - 1) setTimeout(resolve, 300);
       }, i * 300);
     });
   });
@@ -199,8 +183,8 @@ async function submitGuess() {
   if (guessLetters.join("") === secretWord) {
     gameOver = true;
     const attempts = currentRow + 1;
-    showMessage(`Tebrikler! ${attempts}. denemede buldunuz! 🎉`, false, 4000);
-    setTimeout(() => showEndModal(true, attempts), 1500);
+    showMessage(`Tebrikler! ${attempts}. denemede buldunuz!`, false, 4000);
+    showEndPanel(true, attempts);
     return;
   }
 
@@ -210,21 +194,18 @@ async function submitGuess() {
   if (currentRow >= MAX_GUESSES) {
     gameOver = true;
     showMessage(`Maalesef! Kelime: ${secretWord}`, false, 4000);
-    setTimeout(() => showEndModal(false), 1500);
+    showEndPanel(false);
   }
 }
 
 function handleKey(key) {
   if (gameOver) return;
 
-  const normalizedKey = normalize(key);
-
   if (key === "⌫" || key === "BACKSPACE") {
     if (currentCol > 0) {
       currentCol--;
-      const tile = tiles[currentRow][currentCol];
-      tile.textContent = "";
-      tile.classList.remove("filled");
+      tiles[currentRow][currentCol].textContent = "";
+      tiles[currentRow][currentCol].classList.remove("filled");
     }
     return;
   }
@@ -234,21 +215,19 @@ function handleKey(key) {
     return;
   }
 
-  if (normalizedKey.length !== 1) return;
-  if (currentCol >= WORD_LENGTH) return;
+  const letter = normalize(key);
+  if (letter.length !== 1 || currentCol >= WORD_LENGTH) return;
 
-  const tile = tiles[currentRow][currentCol];
-  tile.textContent = normalizedKey;
-  tile.classList.add("filled");
+  tiles[currentRow][currentCol].textContent = letter;
+  tiles[currentRow][currentCol].classList.add("filled");
   currentCol++;
 }
 
-function showEndModal(won, attempts) {
-  modalTitleEl.textContent = won ? "Kazandınız! 🎉" : "Kaybettiniz";
-  modalTextEl.textContent = won
-    ? `${attempts} denemede doğru kelimeyi buldunuz.`
-    : `Doğru kelime "${secretWord}" idi. Tekrar denemek ister misiniz?`;
-  modalEl.classList.remove("hidden");
+function showEndPanel(won, attempts) {
+  endTextEl.textContent = won
+    ? `${attempts}. denemede kazandınız!`
+    : `Kaybettiniz. Kelime: ${secretWord}`;
+  endPanelEl.classList.remove("hidden");
 }
 
 function initGame() {
@@ -257,60 +236,39 @@ function initGame() {
   currentCol = 0;
   gameOver = false;
   keyStates = {};
-
   buildBoard();
   buildKeyboard();
-  modalEl.classList.add("hidden");
+  endPanelEl.classList.add("hidden");
   messageEl.className = "message";
-
 }
 
 function focusGame() {
   appEl.focus({ preventScroll: true });
 }
 
-function isGameKey(e) {
-  if (e.ctrlKey || e.metaKey || e.altKey) return false;
-  if (e.key === "Enter" || e.key === "Backspace") return true;
-  return e.key.length === 1;
-}
-
 function onKeyDown(e) {
-  if (!isGameKey(e)) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!(e.key === "Enter" || e.key === "Backspace" || e.key.length === 1)) return;
 
   e.preventDefault();
-  e.stopImmediatePropagation();
 
-  if (e.key === "Enter") {
-    handleKey("ENTER");
-  } else if (e.key === "Backspace") {
-    handleKey("⌫");
-  } else if (e.key.length === 1) {
-    handleKey(e.key);
-  }
+  if (e.key === "Enter") handleKey("ENTER");
+  else if (e.key === "Backspace") handleKey("⌫");
+  else handleKey(e.key);
 }
 
-function blockBrowserBack() {
-  history.pushState({ game: true }, "", location.href);
-  window.addEventListener("popstate", () => {
-    history.pushState({ game: true }, "", location.href);
-  });
-}
+// Tarayıcının geri gitmesini engelle
+history.pushState(null, "", location.href);
+window.addEventListener("popstate", () => {
+  history.pushState(null, "", location.href);
+});
 
 document.addEventListener("keydown", onKeyDown, true);
-document.addEventListener("keyup", e => {
-  if (e.key === "Backspace") {
-    e.preventDefault();
-  }
-}, true);
-
 appEl.addEventListener("click", focusGame);
 playAgainBtn.addEventListener("click", () => {
   initGame();
   focusGame();
 });
 
-blockBrowserBack();
 focusGame();
-
 initGame();
