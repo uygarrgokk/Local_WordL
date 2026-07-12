@@ -7,14 +7,6 @@ const TURKCE_KLAVYE = [
   ["GIR", "Z", "C", "V", "B", "N", "M", "Ö", "Ç", "SIL"]
 ];
 
-const tahtaEl = document.getElementById("tahta");
-const klavyeEl = document.getElementById("klavye");
-const mesajEl = document.getElementById("mesaj");
-const bitisPanelEl = document.getElementById("bitis-panel");
-const bitisMetinEl = document.getElementById("bitis-metin");
-const tekrarOynaBtn = document.getElementById("tekrar-oyna");
-const uygulamaEl = document.querySelector(".uygulama");
-
 let gizliKelime = "";
 let mevcutSatir = 0;
 let mevcutSutun = 0;
@@ -35,63 +27,56 @@ function kelimeGecerliMi(kelime) {
 }
 
 function tahtaOlustur() {
-  tahtaEl.innerHTML = "";
+  const $tahta = $("#tahta");
+  $tahta.empty();
   kutular = [];
 
   for (let satir = 0; satir < MAKS_DENEME; satir++) {
-    const satirEl = document.createElement("div");
-    satirEl.className = "satir";
+    const $satir = $("<div>").addClass("satir");
     const satirKutulari = [];
 
     for (let sutun = 0; sutun < KELIME_UZUNLUGU; sutun++) {
-      const kutu = document.createElement("div");
-      kutu.className = "kutu";
-      satirEl.appendChild(kutu);
-      satirKutulari.push(kutu);
+      const $kutu = $("<div>").addClass("kutu");
+      $satir.append($kutu);
+      satirKutulari.push($kutu[0]);
     }
 
-    tahtaEl.appendChild(satirEl);
+    $tahta.append($satir);
     kutular.push(satirKutulari);
   }
 }
 
 function klavyeOlustur() {
-  klavyeEl.innerHTML = "";
+  const $klavye = $("#klavye");
+  $klavye.empty();
 
   TURKCE_KLAVYE.forEach(satir => {
-    const satirEl = document.createElement("div");
-    satirEl.className = "klavye-satir";
+    const $satir = $("<div>").addClass("klavye-satir");
 
     satir.forEach(tus => {
-      const dugme = document.createElement("button");
-      dugme.type = "button";
-      dugme.className = "tus";
-      dugme.dataset.tus = tus;
-      dugme.textContent = tus === "GIR" ? "GİR" : tus === "SIL" ? "SİL" : tus;
+      const $dugme = $("<button>")
+        .attr("type", "button")
+        .addClass("tus")
+        .attr("data-tus", tus)
+        .text(tus === "GIR" ? "GİR" : tus === "SIL" ? "SİL" : tus);
 
       if (tus === "GIR" || tus === "SIL") {
-        dugme.classList.add("genis");
+        $dugme.addClass("genis");
       }
 
-      dugme.addEventListener("mousedown", e => e.preventDefault());
-      dugme.addEventListener("click", () => {
-        tusuIsle(tus);
-        oyunaOdaklan();
-      });
-
-      satirEl.appendChild(dugme);
+      $satir.append($dugme);
     });
 
-    klavyeEl.appendChild(satirEl);
+    $klavye.append($satir);
   });
 }
 
 function mesajGoster(metin, hataMi = false, sure = 2000) {
-  mesajEl.textContent = metin;
-  mesajEl.className = "mesaj goster" + (hataMi ? " hata" : "");
+  const $mesaj = $("#mesaj");
+  $mesaj.text(metin).attr("class", "mesaj goster" + (hataMi ? " hata" : ""));
   clearTimeout(mesajGoster._zamanlayici);
   mesajGoster._zamanlayici = setTimeout(() => {
-    mesajEl.className = "mesaj";
+    $mesaj.attr("class", "mesaj");
   }, sure);
 }
 
@@ -129,10 +114,9 @@ function tusDurumlariniGuncelle(tahmin, sonuc) {
     if (onceki === "yanlis-yerde" && durum === "yok") continue;
 
     tusDurumlari[harf] = durum;
-    const tusDugmesi = klavyeEl.querySelector(`[data-tus="${harf}"]`);
-    if (tusDugmesi) {
-      tusDugmesi.classList.remove("dogru", "yanlis-yerde", "yok");
-      tusDugmesi.classList.add(durum);
+    const $tus = $(`#klavye [data-tus="${harf}"]`);
+    if ($tus.length) {
+      $tus.removeClass("dogru yanlis-yerde yok").addClass(durum);
     }
   }
 }
@@ -141,8 +125,7 @@ function satiriAc(satirIndeksi, tahmin, sonuc) {
   return new Promise(bitir => {
     kutular[satirIndeksi].forEach((kutu, i) => {
       setTimeout(() => {
-        kutu.classList.add("cevir", sonuc[i]);
-        kutu.textContent = tahmin[i];
+        $(kutu).addClass("cevir " + sonuc[i]).text(tahmin[i]);
         if (i === KELIME_UZUNLUGU - 1) setTimeout(bitir, 300);
       }, i * 300);
     });
@@ -150,9 +133,9 @@ function satiriAc(satirIndeksi, tahmin, sonuc) {
 }
 
 function satiriSalla(satirIndeksi) {
-  const satirEl = tahtaEl.children[satirIndeksi];
-  satirEl.classList.add("salla");
-  setTimeout(() => satirEl.classList.remove("salla"), 500);
+  const $satir = $("#tahta .satir").eq(satirIndeksi);
+  $satir.addClass("salla");
+  setTimeout(() => $satir.removeClass("salla"), 500);
 }
 
 async function tahminiGonder() {
@@ -203,8 +186,7 @@ function tusuIsle(tus) {
   if (tus === "SIL" || tus === "BACKSPACE") {
     if (mevcutSutun > 0) {
       mevcutSutun--;
-      kutular[mevcutSatir][mevcutSutun].textContent = "";
-      kutular[mevcutSatir][mevcutSutun].classList.remove("dolu");
+      $(kutular[mevcutSatir][mevcutSutun]).text("").removeClass("dolu");
     }
     return;
   }
@@ -217,16 +199,17 @@ function tusuIsle(tus) {
   const harf = buyukHarfYap(tus);
   if (harf.length !== 1 || mevcutSutun >= KELIME_UZUNLUGU) return;
 
-  kutular[mevcutSatir][mevcutSutun].textContent = harf;
-  kutular[mevcutSatir][mevcutSutun].classList.add("dolu");
+  $(kutular[mevcutSatir][mevcutSutun]).text(harf).addClass("dolu");
   mevcutSutun++;
 }
 
 function bitisPaneliniGoster(kazandiMi, denemeSayisi) {
-  bitisMetinEl.textContent = kazandiMi
-    ? `${denemeSayisi}. denemede kazandınız!`
-    : `Kaybettiniz. Kelime: ${gizliKelime}`;
-  bitisPanelEl.classList.remove("gizli");
+  $("#bitis-metin").text(
+    kazandiMi
+      ? `${denemeSayisi}. denemede kazandınız!`
+      : `Kaybettiniz. Kelime: ${gizliKelime}`
+  );
+  $("#bitis-panel").removeClass("gizli");
 }
 
 function oyunuBaslat() {
@@ -237,12 +220,12 @@ function oyunuBaslat() {
   tusDurumlari = {};
   tahtaOlustur();
   klavyeOlustur();
-  bitisPanelEl.classList.add("gizli");
-  mesajEl.className = "mesaj";
+  $("#bitis-panel").addClass("gizli");
+  $("#mesaj").attr("class", "mesaj");
 }
 
 function oyunaOdaklan() {
-  uygulamaEl.focus({ preventScroll: true });
+  $(".uygulama")[0].focus({ preventScroll: true });
 }
 
 function tusBasildi(e) {
@@ -256,18 +239,35 @@ function tusBasildi(e) {
   else tusuIsle(e.key);
 }
 
-// Tarayıcının geri gitmesini engelle
-history.pushState(null, "", location.href);
-window.addEventListener("popstate", () => {
+$(function () {
+  // Klavye tuşları (dinamik — event delegation)
+  $("#klavye").on("mousedown", ".tus", function (e) {
+    e.preventDefault();
+  });
+
+  $("#klavye").on("click", ".tus", function () {
+    tusuIsle($(this).data("tus"));
+    oyunaOdaklan();
+  });
+
+  // Fiziksel klavye
+  $(document).on("keydown", tusBasildi);
+
+  // Uygulamaya tıklayınca odak
+  $(".uygulama").on("click", oyunaOdaklan);
+
+  // Tekrar oyna
+  $("#tekrar-oyna").on("click", function () {
+    oyunuBaslat();
+    oyunaOdaklan();
+  });
+
+  // Tarayıcı geri tuşu
   history.pushState(null, "", location.href);
-});
+  $(window).on("popstate", function () {
+    history.pushState(null, "", location.href);
+  });
 
-document.addEventListener("keydown", tusBasildi, true);
-uygulamaEl.addEventListener("click", oyunaOdaklan);
-tekrarOynaBtn.addEventListener("click", () => {
-  oyunuBaslat();
   oyunaOdaklan();
+  oyunuBaslat();
 });
-
-oyunaOdaklan();
-oyunuBaslat();
