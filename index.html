@@ -3,32 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wordle — Hard Level Game</title>
+  <title>Wordle — Zor Seviye</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app" tabindex="-1">
+  <div class="uygulama" tabindex="-1">
     <header>
-      <h1>WORDLE — Hard Level Game</h1>
-      <p class="subtitle">5 harfli kelimeyi 6 denemede bul!</p>
+      <h1>WORDLE — Zor Seviye</h1>
+      <p class="altbaslik">5 harfli kelimeyi 6 denemede bul!</p>
     </header>
 
-    <div id="message" class="message" aria-live="polite"></div>
+    <div id="mesaj" class="mesaj" aria-live="polite"></div>
 
-    <div id="board" class="board" role="grid" aria-label="Tahmin tahtası"></div>
+    <div id="tahta" class="tahta" role="grid" aria-label="Tahmin tahtası"></div>
 
-    <div id="end-panel" class="end-panel hidden">
-      <p id="end-text"></p>
-      <button id="play-again" class="btn" type="button">Tekrar Oyna</button>
+    <div id="bitis-panel" class="bitis-panel gizli">
+      <p id="bitis-metin"></p>
+      <button id="tekrar-oyna" class="dugme" type="button">Tekrar Oyna</button>
     </div>
 
-    <div id="keyboard" class="keyboard" role="group" aria-label="Sanal klavye"></div>
+    <div id="klavye" class="klavye" role="group" aria-label="Sanal klavye"></div>
 
-    <footer class="site-footer">Designed by Uygar GÖK</footer>
+    <footer class="site-altbilgi">Designed by Uygar GÖK</footer>
   </div>
 
   <script src="words.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
-

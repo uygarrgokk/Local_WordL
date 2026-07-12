@@ -1,13 +1,13 @@
 :root {
-  --bg: #121213;
-  --surface: #1a1a1b;
-  --border: #3a3a3c;
-  --text: #ffffff;
-  --text-muted: #818384;
-  --correct: #538d4e;
-  --present: #b59f3b;
-  --absent: #3a3a3c;
-  --key-bg: #818384;
+  --arka-plan: #121213;
+  --yuzey: #1a1a1b;
+  --kenarlik: #3a3a3c;
+  --yazi: #ffffff;
+  --yazi-soluk: #818384;
+  --dogru: #538d4e;
+  --yanlis-yerde: #b59f3b;
+  --yok: #3a3a3c;
+  --tus-arka: #818384;
 }
 
 * {
@@ -18,14 +18,14 @@
 
 body {
   font-family: "Segoe UI", system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--arka-plan);
+  color: var(--yazi);
   min-height: 100vh;
   display: flex;
   justify-content: center;
 }
 
-.app {
+.uygulama {
   width: 100%;
   max-width: 500px;
   min-height: 100vh;
@@ -40,7 +40,7 @@ body {
 header {
   text-align: center;
   padding: 0.25rem 0 0.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--kenarlik);
   width: 100%;
 }
 
@@ -50,13 +50,13 @@ header h1 {
   font-weight: 700;
 }
 
-.subtitle {
-  color: var(--text-muted);
+.altbaslik {
+  color: var(--yazi-soluk);
   font-size: 0.85rem;
   margin-top: 0.35rem;
 }
 
-.message {
+.mesaj {
   opacity: 0;
   font-weight: 600;
   font-size: 0.9rem;
@@ -65,19 +65,19 @@ header h1 {
   transition: opacity 0.2s;
 }
 
-.message.show {
+.mesaj.goster {
   opacity: 1;
   padding: 0.35rem 1rem;
   background: #fff;
   color: #121213;
 }
 
-.message.error {
+.mesaj.hata {
   background: #ff4444;
   color: #fff;
 }
 
-.board {
+.tahta {
   display: grid;
   grid-template-rows: repeat(6, 1fr);
   gap: 5px;
@@ -86,14 +86,14 @@ header h1 {
   aspect-ratio: 5 / 6;
 }
 
-.row {
+.satir {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 5px;
 }
 
-.tile {
-  border: 2px solid var(--border);
+.kutu {
+  border: 2px solid var(--kenarlik);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,46 +102,46 @@ header h1 {
   text-transform: uppercase;
 }
 
-.tile.filled {
-  border-color: var(--text-muted);
+.kutu.dolu {
+  border-color: var(--yazi-soluk);
 }
 
-.tile.correct {
-  background: var(--correct);
-  border-color: var(--correct);
+.kutu.dogru {
+  background: var(--dogru);
+  border-color: var(--dogru);
 }
 
-.tile.present {
-  background: var(--present);
-  border-color: var(--present);
+.kutu.yanlis-yerde {
+  background: var(--yanlis-yerde);
+  border-color: var(--yanlis-yerde);
 }
 
-.tile.absent {
-  background: var(--absent);
-  border-color: var(--absent);
+.kutu.yok {
+  background: var(--yok);
+  border-color: var(--yok);
 }
 
-.tile.flip {
-  animation: flip 0.5s ease;
+.kutu.cevir {
+  animation: cevir 0.5s ease;
 }
 
-.row.shake {
-  animation: shake 0.5s;
+.satir.salla {
+  animation: salla 0.5s;
 }
 
-@keyframes flip {
+@keyframes cevir {
   0% { transform: rotateX(0); }
   50% { transform: rotateX(90deg); }
   100% { transform: rotateX(0); }
 }
 
-@keyframes shake {
+@keyframes salla {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
 
-.keyboard {
+.klavye {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -149,19 +149,19 @@ header h1 {
   padding: 0.25rem 0;
 }
 
-.keyboard-row {
+.klavye-satir {
   display: flex;
   justify-content: center;
   gap: 6px;
 }
 
-.key {
+.tus {
   min-width: 2rem;
   height: 3.1rem;
   padding: 0 0.5rem;
   border: none;
   border-radius: 4px;
-  background: var(--key-bg);
+  background: var(--tus-arka);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
@@ -169,17 +169,16 @@ header h1 {
   text-transform: uppercase;
 }
 
-/* GİR ve SİL tuşları — script.js'te classList.add("wide") ile eklenir */
-.key.wide {
+.tus.genis {
   min-width: 4rem;
   font-size: 0.75rem;
 }
 
-.key.correct { background: var(--correct); }
-.key.present { background: var(--present); }
-.key.absent { background: var(--absent); }
+.tus.dogru { background: var(--dogru); }
+.tus.yanlis-yerde { background: var(--yanlis-yerde); }
+.tus.yok { background: var(--yok); }
 
-.end-panel {
+.bitis-panel {
   width: 100%;
   max-width: 330px;
   margin: 0.5rem 0 0.25rem;
@@ -191,18 +190,18 @@ header h1 {
   text-align: center;
 }
 
-.end-panel.hidden {
+.bitis-panel.gizli {
   display: none;
 }
 
-.end-panel p {
-  color: var(--text);
+.bitis-panel p {
+  color: var(--yazi);
   font-size: 0.95rem;
   font-weight: 600;
 }
 
-.btn {
-  background: var(--correct);
+.dugme {
+  background: var(--dogru);
   color: #fff;
   border: none;
   padding: 0.65rem 1.25rem;
@@ -212,25 +211,25 @@ header h1 {
   cursor: pointer;
 }
 
-.site-footer {
+.site-altbilgi {
   margin-top: auto;
   width: 100%;
   padding: 1rem 0 0.5rem;
   text-align: center;
   font-family: Arial, sans-serif;
   font-size: 9px;
-  color: var(--text-muted);
+  color: var(--yazi-soluk);
 }
 
 @media (max-width: 400px) {
-  .key {
+  .tus {
     min-width: 1.6rem;
     height: 3rem;
     font-size: 0.75rem;
     padding: 0 0.25rem;
   }
 
-  .key.wide {
+  .tus.genis {
     min-width: 3rem;
   }
 }

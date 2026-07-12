@@ -1,6 +1,6 @@
 // Tam 5 harfli Türkçe kelimeler (5689 adet)
 // Kaynak: kelimetre.com + kullanıcı listesi (birleştirilmiş)
-const VALID_WORDS = [
+const GECERLI_KELIMELER = [
   "ABACI", "ABADİ", "ABALI", "ABANA", "ABANİ", "ABARA", "ABAŞO", "ABAZA", "ABBAS", "ABDAL",
   "ABECE", "ABECİ", "ABHAZ", "ABİDE", "ABİYE", "ABLAK", "ABONE", "ABOSA", "ABRAŞ", "ABULİ",
   "ACABA", "ACARA", "ACELE", "ACEMİ", "ACEZE", "ACICA", "ACILI", "ACIMA", "ACİBE", "ACUBE",
